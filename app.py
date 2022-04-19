@@ -1,0 +1,274 @@
+# https://code.tutsplus.com/tutorials/creating-a-web-app-from-scratch-using-python-flask-and-mysql--cms-22972
+from flask import Flask, render_template, json, request
+from flaskext.mysql import MySQL
+
+app = Flask(__name__)
+mysql = MySQL()
+ 
+# MySQL configurations
+app.config['MYSQL_DATABASE_USER'] = 'root'
+app.config['MYSQL_DATABASE_PASSWORD'] = ''
+app.config['MYSQL_DATABASE_DB'] = 'bank_management'
+app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+mysql.init_app(app)
+
+conn = mysql.connect()
+cursor = conn.cursor()
+
+@app.route("/")
+def main():
+    return render_template('index.html')
+
+# Displaying data
+@app.route('/20')
+def screen_20():
+    return display_table("display_account_stats")
+
+@app.route('/21')
+def screen_21():
+    return display_table("display_bank_stats")
+
+@app.route('/22')
+def screen_22():
+    return display_table("display_corporation_stats")
+
+@app.route('/23')
+def screen_23():
+    return display_table("display_customer_stats")
+
+@app.route('/24')
+def screen_24():
+    return display_table("display_employee_stats")
+
+def display_table(table):
+    cursor.execute("select * from " + table)
+    rows = list(cursor.fetchall())
+    cols = []
+    for col in cursor.description:
+        cols.append(col[0])
+    return render_template('display_table.html', title=table, rows=rows, cols=cols)
+
+
+# Updating data
+@app.route('/1')
+def screen_1():
+    return render_template('1_create_corporation.html')
+
+@app.route('/2')
+def screen_2():
+    return render_template('2_create_bank.html')
+
+@app.route('/3')
+def screen_3():
+    cursor.execute("select perID from employee")
+    rows = list(cursor.fetchall())
+    perIDs = [row[0] for row in rows]
+    return render_template('3_create_employee_role.html', perIDs=perIDs)
+
+@app.route('/4')
+def screen_4():
+    cursor.execute("select perID from customer")
+    rows = list(cursor.fetchall())
+    perIDs = [row[0] for row in rows]
+    return render_template('4_create_customer_role.html', perIDs=perIDs)
+
+@app.route('/5_1')
+def screen_5_1():
+    cursor.execute("select perID from employee")
+    rows = list(cursor.fetchall())
+    perIDs = [row[0] for row in rows]
+    return render_template('5_1_stop_employee_role.html', perIDs=perIDs)
+
+@app.route('/5_2')
+def screen_5_2():
+    cursor.execute("select perID from customer")
+    rows = list(cursor.fetchall())
+    perIDs = [row[0] for row in rows]
+    return render_template('5_2_stop_customer_role.html', perIDs=perIDs)
+
+@app.route('/6')
+def screen_6():
+    cursor.execute("select bankID from bank")
+    rows = list(cursor.fetchall())
+    bankIDs = [row[0] for row in rows]
+    cursor.execute("select perID from employee")
+    rows = list(cursor.fetchall())
+    perIDs = [row[0] for row in rows]
+    return render_template('5_2_stop_customer_role.html', bankIDs=bankIDs, perIDs=perIDs)
+
+@app.route('/7')
+def screen_7():
+    cursor.execute("select bankID from bank")
+    rows = list(cursor.fetchall())
+    bankIDs = [row[0] for row in rows]
+    cursor.execute("select perID from employee")
+    rows = list(cursor.fetchall())
+    perIDs = [row[0] for row in rows]
+    return render_template('7_replace_manager.html', bankIDs=bankIDs, perIDs=perIDs)
+
+
+@app.route('/api/1',methods=['POST'])
+def screen_1_submit():
+    _corpID = request.form['corpID']
+    _shortName = request.form['shortName']
+    _longName = request.form['longName']
+    _resAssets = request.form['resAssets']
+
+    cursor.callproc('create_corporation', [_corpID, _shortName, _longName, _resAssets])
+
+    data = cursor.fetchall()
+    if len(data) == 0:
+        conn.commit()
+        return json.dumps({'message':'Success'})
+    else:
+        return json.dumps({'error':str(data[0])})
+
+@app.route('/api/2',methods=['POST'])
+def screen_2_submit():
+    _bankID = request.form['bankID']
+    _bankName = request.form['bankName']
+    _street = request.form['street']
+    _city = request.form['city']
+    _state = request.form['state']
+    _zip = request.form['zip']
+    _resAssets = request.form['resAssets']
+    _corpID = request.form['corpID']
+    _manager = request.form['manager']
+    _bankEmployee = request.form['bankEmployee']
+
+    cursor.callproc('create_bank', [_bankID, _bankName, _street, _city, _state, _zip, _resAssets, _corpID, _manager, _bankEmployee])
+
+    data = cursor.fetchall()
+    if len(data) == 0:
+        conn.commit()
+        return json.dumps({'message':'Success'})
+    else:
+        return json.dumps({'error':str(data[0])})
+
+@app.route('/api/3',methods=['POST'])
+def screen_3_submit():
+    _perID = request.form['perID']
+    _salary = request.form['salary']
+    _numPayments = request.form['numPayments']
+    _earnings = request.form['earnings']
+    
+    cursor.callproc('start_employee_role', [])      # NOT WORKING YET
+
+    data = cursor.fetchall()
+    if len(data) == 0:
+        conn.commit()
+        return json.dumps({'message':'Success'})
+    else:
+        return json.dumps({'error':str(data[0])})
+
+@app.route('/api/4',methods=['POST'])
+def screen_4_submit():
+    _perID = request.form['perID']
+    
+    cursor.callproc('start_customer_role', [])      # NOT WORKING YET
+
+    data = cursor.fetchall()
+    if len(data) == 0:
+        conn.commit()
+        return json.dumps({'message':'Success'})
+    else:
+        return json.dumps({'error':str(data[0])})
+
+@app.route('/api/5_1',methods=['POST'])
+def screen_5_1_submit():
+    _perID = request.form['perID']
+    
+    cursor.callproc('stop_employee_role', [_perID])
+
+    data = cursor.fetchall()
+    if len(data) == 0:
+        conn.commit()
+        return json.dumps({'message':'Success'})
+    else:
+        return json.dumps({'error':str(data[0])})
+
+@app.route('/api/5_2',methods=['POST'])
+def screen_5_2_submit():
+    _perID = request.form['perID']
+    
+    cursor.callproc('stop_customer_role', [_perID])
+
+    data = cursor.fetchall()
+    if len(data) == 0:
+        conn.commit()
+        return json.dumps({'message':'Success'})
+    else:
+        return json.dumps({'error':str(data[0])})
+
+@app.route('/api/6',methods=['POST'])
+def screen_6_submit():
+    _bankID = request.form['bankID']
+    _perID = request.form['perID']
+    
+    cursor.callproc('hire_worker', [])      # NOT WORKING YET
+
+    data = cursor.fetchall()
+    if len(data) == 0:
+        conn.commit()
+        return json.dumps({'message':'Success'})
+    else:
+        return json.dumps({'error':str(data[0])})
+
+@app.route('/api/7',methods=['POST'])
+def screen_7_submit():
+    _bankID = request.form['bankID']
+    _perID = request.form['perID']
+    _salary = request.form['salary']
+    
+    cursor.callproc('replace_manager', [_perID, _bankID, salary])      # NOT WORKING YET
+
+    data = cursor.fetchall()
+    if len(data) == 0:
+        conn.commit()
+        return json.dumps({'message':'Success'})
+    else:
+        return json.dumps({'error':str(data[0])})
+
+
+
+
+
+
+
+# execute a sql file
+def exec_sql_file(cursor, sql_file):
+    print("\n[INFO] Executing SQL script file: '%s'" % (sql_file))
+    statement = ""
+
+    import re
+    for line in open(sql_file):
+        if re.match(r'--', line):  # ignore sql comment lines
+            continue
+        if not re.search(r';$', line):  # keep appending lines that don't end in ';'
+            statement = statement + " " + line.strip()
+        else:  # when you get a line ending in ';' then exec statement and reset for next statement
+            statement = statement + " " + line.strip()
+            # print("\n\n[DEBUG] Executing SQL statement:\n%s" % (statement))
+            try:
+                cursor.execute(statement)
+            except (OperationalError, ProgrammingError) as e:
+                print("\n[WARN] MySQLError during execute statement \n\tArgs: '%s'" % (str(e.args)))
+
+            statement = ""
+
+# Method to reset the database contents (does NOT reset the stored procedures)
+@app.route('/api/reset',methods=['POST'])
+def reset_db():
+    print('Resetting the database...')
+    exec_sql_file(cursor, "reset.sql")
+    print('Reset the database.')
+
+    return json.dumps({'message':'Reset database'})
+
+# if you want to initialize database when the first request is receieved after startup:
+# @app.before_first_request
+# def _():
+#     reset_db()
+
+if __name__ == "__main__":
+    app.run()

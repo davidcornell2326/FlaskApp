@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Phase IV</title>
+</head>
+
+<body>
+    <div class="header">
+
+    </div>
+        <button onclick="resetDB()">Reset Database</button>
+    <div>
+        <div><a href="1" role="button">Screen 1</a></div>
+        <div><a href="2" role="button">Screen 2</a></div>
+        <div><a href="3" role="button">Screen 3</a></div>
+        <div><a href="4" role="button">Screen 4</a></div>
+        <div><a href="5_1" role="button">Screen 5_1</a></div>
+        <div><a href="5_2" role="button">Screen 5_2</a></div>
+        <div><a href="6" role="button">Screen 6</a></div>
+        <div><a href="7" role="button">Screen 7</a></div>
+        
+        <div><a href="20" role="button">Screen 20</a></div>
+        <div><a href="21" role="button">Screen 21</a></div>
+        <div><a href="22" role="button">Screen 22</a></div>
+        <div><a href="23" role="button">Screen 23</a></div>
+        <div><a href="24" role="button">Screen 24</a></div>
+    </div>
+
+    <script>
+        async function resetDB() {
+            const res = await fetch("/api/reset", {
+                body: "",
+                method: "POST"
+            })
+        }
+    </script>
+</body>
+
+</html>

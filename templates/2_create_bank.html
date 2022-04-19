@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>create_bank</title>
+</head>
+
+<body>
+    <div class="header">
+        <a href="/">Home</a>
+        <h1>create_bank</h1>
+    </div>
+
+    <form id="form" method="POST">
+        <div><input type="name" name="bankID" placeholder="bankID" required autofocus /></div>
+        <div><input type="name" name="bankName" placeholder="bankName" required /></div>
+        <div><input type="name" name="street" placeholder="street" required /></div>
+        <div><input type="name" name="city" placeholder="city" required /></div>
+        <div><input type="name" name="state" placeholder="state" required /></div>
+        <div><input type="name" name="zip" placeholder="zip" required /></div>
+        <div><input type="number" name="resAssets" placeholder="resAssets" required /></div>
+        <div><input type="name" name="corpID" placeholder="corpID" required /></div>
+        <div><input type="name" name="manager" placeholder="manager" required /></div>
+        <div><input type="name" name="bankEmployee" placeholder="bankEmployee" required /></div>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        document.querySelector('#form').addEventListener("submit", async function (e) {
+            e.preventDefault()
+            console.log(new URLSearchParams(new FormData(e.target)).toString())
+            const res = await fetch("/api/2", {
+                body: new URLSearchParams(new FormData(e.target)).toString(),
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            })
+            console.log(await res.json())
+        });
+    </script>
+</body>
+
+</html>

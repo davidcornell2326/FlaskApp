@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>replace_manager</title>
+</head>
+
+<body>
+    <div class="header">
+        <a href="/">Home</a>
+        <h1>replace_manager</h1>
+    </div>
+
+    <form id="form" method="POST">
+        <div><select name="bankID">
+            {% for bankID in bankIDs %}
+            <option>{{bankID}}</option>
+            {% endfor %}
+        </select></div>
+        <div><select name="perID">
+            {% for perID in perIDs %}
+            <option>{{perID}}</option>
+            {% endfor %}
+        </select></div>
+        <div><input type="number" name="salary" placeholder="salary" required /></div>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        document.querySelector('#form').addEventListener("submit", async function (e) {
+            e.preventDefault()
+            console.log(new URLSearchParams(new FormData(e.target)).toString())
+            const res = await fetch("/api/7", {
+                body: new URLSearchParams(new FormData(e.target)).toString(),
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            })
+            console.log(await res.json())
+        });
+    </script>
+</body>
+
+</html>

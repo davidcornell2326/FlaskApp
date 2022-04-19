@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>create_corporation</title>
+</head>
+
+<body>
+    <div class="header">
+        <a href="/">Home</a>
+        <h1>create_corporation</h1>
+    </div>
+
+    <form id="form" method="POST">
+        <div><input type="name" name="corpID" placeholder="corpID" required autofocus /></div>
+        <div><input type="name" name="shortName" placeholder="shortName" required /></div>
+        <div><input type="name" name="longName" placeholder="longName" required /></div>
+        <div><input type="number" name="resAssets" placeholder="resAssets" required /></div>
+
+        <div><button type="submit">Submit</button></div>
+    </form>
+
+    <script>
+        document.querySelector('#form').addEventListener("submit", async function (e) {
+            e.preventDefault()
+            console.log(new URLSearchParams(new FormData(e.target)).toString())
+            const res = await fetch("/api/1", {
+                body: new URLSearchParams(new FormData(e.target)).toString(),
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            })
+            console.log(await res.json())
+        });
+    </script>
+</body>
+
+</html>
