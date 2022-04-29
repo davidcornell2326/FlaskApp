@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>manage_accounts_admin</title>
+</head>
+
+<body>
+    <div class="header">
+        <a href="/">Home</a>
+        <h1>manage_accounts_admin</h1>
+    </div>
+
+    <form id="form" method="POST">
+        <div><text>Add/remove accounts</text></div>
+        <div><text>account</text><select name="account">
+            {% for account in accounts %}
+            <option>{{account}}</option>
+            {% endfor %}
+        </select></div>
+        <div><text>customer</text><select name="customer">
+            {% for customer in customers %}
+            <option>{{customer}}</option>
+            {% endfor %}
+        </select></div>
+        <div>
+            <input type="radio" id="adding" name="addingRemoving" value="Adding" checked>
+            <label for="adding">adding</label>
+            <input type="radio" id="removing" name="addingRemoving" value="Removing">
+            <label for="removing">removing</label>
+        </div>
+        <div><text>Create new account:</text></div>
+        <div><text>bankID</text><select name="bankID">
+            {% for bankID in bankIDs %}
+            <option>{{bankID}}</option>
+            {% endfor %}
+        </select></div>
+        <div><input type="name" name="accountID" placeholder="accountID" required /></div>
+        <div><text>accountType</text><select name="accountType">
+            {% for accountType in accountTypes %}
+            <option>{{accountType}}</option>
+            {% endfor %}
+        </select></div>
+        <div><input type="number" name="balance" placeholder="balance" required /></div>
+        <div><input type="number" name="minBalance" placeholder="minBalance" required /></div>
+        <div><input type="number" name="interestRate" placeholder="interestRate" required /></div>
+        <div><input type="number" name="maxWithdrawals" placeholder="maxWithdrawals" required /></div>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        document.querySelector('#form').addEventListener("submit", async function (e) {
+            e.preventDefault()
+            console.log(new URLSearchParams(new FormData(e.target)).toString())
+            const res = await fetch("/api/8_2", {
+                body: new URLSearchParams(new FormData(e.target)).toString(),
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            })
+            console.log(await res.json())
+        });
+    </script>
+</body>
+
+</html>

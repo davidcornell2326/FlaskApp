@@ -2,35 +2,34 @@
 <html lang="en">
 
 <head>
-    <title>hire_worker</title>
+    <title>admin_navigation</title>
 </head>
 
 <body>
     <div class="header">
         <a href="/">Home</a>
-        <h1>hire_worker</h1>
+        <h1>admin_navigation</h1>
     </div>
 
-    <form id="form" method="POST">
-        <div><text>bankID</text><select name="bankID">
-            {% for bankID in bankIDs %}
-            <option>{{bankID}}</option>
-            {% endfor %}
-        </select></div>
-        <div><text>perID</text><select name="perID">
-            {% for perID in perIDs %}
-            <option>{{perID}}</option>
-            {% endfor %}
-        </select></div>
-
+    <!-- <form id="form" method="POST">
         <button type="submit">Submit</button>
-    </form>
+    </form> -->
+    <div><a href="22">View Stats</a></div>
+    <div><a href="1">Create Corporation</a></div>
+    <div><a href="21">Manage Users</a></div>
+    <div><a href="6">Hire Worker</a></div>
+    <div><a href="7">Replace Manager</a></div>
+    <div><a href="9">Create Fee</a></div>
+    <div><a href="10">Manage Overdraft</a></div>
+    <div><a href="13">Pay Employees</a></div>
+    <div><a href="8_2">Manage Accounts</a></div>
+    <div><a href="2">Create Bank</a></div>
 
-    <script>
+    <!-- <script>
         document.querySelector('#form').addEventListener("submit", async function (e) {
             e.preventDefault()
             console.log(new URLSearchParams(new FormData(e.target)).toString())
-            const res = await fetch("/api/6", {
+            const res = await fetch("/api/9", {
                 body: new URLSearchParams(new FormData(e.target)).toString(),
                 method: "POST",
                 headers: {
@@ -39,7 +38,7 @@
             })
             console.log(await res.json())
         });
-    </script>
+    </script> -->
 </body>
 
 </html>

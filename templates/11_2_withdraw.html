@@ -2,24 +2,25 @@
 <html lang="en">
 
 <head>
-    <title>hire_worker</title>
+    <title>withdraw</title>
 </head>
 
 <body>
     <div class="header">
         <a href="/">Home</a>
-        <h1>hire_worker</h1>
+        <h1>withdraw</h1>
     </div>
 
     <form id="form" method="POST">
+        <div><input type="number" name="amount" placeholder="amount" required /></div>
         <div><text>bankID</text><select name="bankID">
             {% for bankID in bankIDs %}
             <option>{{bankID}}</option>
             {% endfor %}
         </select></div>
-        <div><text>perID</text><select name="perID">
-            {% for perID in perIDs %}
-            <option>{{perID}}</option>
+        <div><text>accountID</text><select name="accountID">
+            {% for accountID in accountIDs %}
+            <option>{{accountID}}</option>
             {% endfor %}
         </select></div>
 
@@ -30,7 +31,7 @@
         document.querySelector('#form').addEventListener("submit", async function (e) {
             e.preventDefault()
             console.log(new URLSearchParams(new FormData(e.target)).toString())
-            const res = await fetch("/api/6", {
+            const res = await fetch("/api/11_2", {
                 body: new URLSearchParams(new FormData(e.target)).toString(),
                 method: "POST",
                 headers: {

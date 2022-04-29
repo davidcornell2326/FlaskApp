@@ -12,11 +12,11 @@
     </div>
 
     <form id="form" method="POST">
-        <select name="perID">
+        <div><text>perID</text><select name="perID">
             {% for perID in perIDs %}
             <option>{{perID}}</option>
             {% endfor %}
-        </select>
+        </select></div>
 
         <button type="submit">Submit</button>
     </form>

@@ -2,26 +2,32 @@
 <html lang="en">
 
 <head>
-    <title>hire_worker</title>
+    <title>manage_accounts_customer</title>
 </head>
 
 <body>
     <div class="header">
         <a href="/">Home</a>
-        <h1>hire_worker</h1>
+        <h1>manage_accounts_customer</h1>
     </div>
 
     <form id="form" method="POST">
-        <div><text>bankID</text><select name="bankID">
-            {% for bankID in bankIDs %}
-            <option>{{bankID}}</option>
+        <div><text>account</text><select name="account">
+            {% for account in accounts %}
+            <option>{{account}}</option>
             {% endfor %}
         </select></div>
-        <div><text>perID</text><select name="perID">
-            {% for perID in perIDs %}
-            <option>{{perID}}</option>
+        <div><text>customer</text><select name="customer">
+            {% for customer in customers %}
+            <option>{{customer}}</option>
             {% endfor %}
         </select></div>
+        <div>
+            <input type="radio" id="adding" name="addingRemoving" value="Adding" checked>
+            <label for="adding">adding</label>
+            <input type="radio" id="removing" name="addingRemoving" value="Removing">
+            <label for="removing">removing</label>
+        </div>
 
         <button type="submit">Submit</button>
     </form>
@@ -30,7 +36,7 @@
         document.querySelector('#form').addEventListener("submit", async function (e) {
             e.preventDefault()
             console.log(new URLSearchParams(new FormData(e.target)).toString())
-            const res = await fetch("/api/6", {
+            const res = await fetch("/api/8_1", {
                 body: new URLSearchParams(new FormData(e.target)).toString(),
                 method: "POST",
                 headers: {

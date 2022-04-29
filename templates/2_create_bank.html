@@ -19,9 +19,21 @@
         <div><input type="name" name="state" placeholder="state" required /></div>
         <div><input type="name" name="zip" placeholder="zip" required /></div>
         <div><input type="number" name="resAssets" placeholder="resAssets" required /></div>
-        <div><input type="name" name="corpID" placeholder="corpID" required /></div>
-        <div><input type="name" name="manager" placeholder="manager" required /></div>
-        <div><input type="name" name="bankEmployee" placeholder="bankEmployee" required /></div>
+        <div><text>corpID</text><select name="corpID">
+            {% for corpID in corpIDs %}
+            <option>{{corpID}}</option>
+            {% endfor %}
+        </select></div>
+        <div><text>manager</text><select name="manager">
+            {% for manager in managers %}
+            <option>{{manager}}</option>
+            {% endfor %}
+        </select></div>
+        <div><text>bankEmployee</text><select name="bankEmployee">
+            {% for bankEmployee in bankEmployees %}
+            <option>{{bankEmployee}}</option>
+            {% endfor %}
+        </select></div>
 
         <button type="submit">Submit</button>
     </form>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>transfer</title>
+</head>
+
+<body>
+    <div class="header">
+        <a href="/">Home</a>
+        <h1>transfer</h1>
+    </div>
+
+    <form id="form" method="POST">
+        <div><text>fromBankID</text><select name="fromBankID">
+            {% for fromBankID in fromBankIDs %}
+            <option>{{fromBankID}}</option>
+            {% endfor %}
+        </select></div>
+        <div><text>fromAccountID</text><select name="fromAccountID">
+            {% for fromAccountID in fromAccountIDs %}
+            <option>{{fromAccountID}}</option>
+            {% endfor %}
+        </select></div>
+        <div><input type="number" name="amount" placeholder="amount" required /></div>
+        <div><text>toBankID</text><select name="toBankID">
+            {% for toBankID in toBankIDs %}
+            <option>{{toBankID}}</option>
+            {% endfor %}
+        </select></div>
+        <div><text>toAccountID</text><select name="fromAccountID">
+            {% for toAccountID in toAccountIDs %}
+            <option>{{toAccountID}}</option>
+            {% endfor %}
+        </select></div>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        document.querySelector('#form').addEventListener("submit", async function (e) {
+            e.preventDefault()
+            console.log(new URLSearchParams(new FormData(e.target)).toString())
+            const res = await fetch("/api/12", {
+                body: new URLSearchParams(new FormData(e.target)).toString(),
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            })
+            console.log(await res.json())
+        });
+    </script>
+</body>
+
+</html>

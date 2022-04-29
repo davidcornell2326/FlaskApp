@@ -19,36 +19,6 @@ cursor = conn.cursor()
 def main():
     return render_template('index.html')
 
-# Displaying data
-@app.route('/20')
-def screen_20():
-    return display_table("display_account_stats")
-
-@app.route('/21')
-def screen_21():
-    return display_table("display_bank_stats")
-
-@app.route('/22')
-def screen_22():
-    return display_table("display_corporation_stats")
-
-@app.route('/23')
-def screen_23():
-    return display_table("display_customer_stats")
-
-@app.route('/24')
-def screen_24():
-    return display_table("display_employee_stats")
-
-def display_table(table):
-    cursor.execute("select * from " + table)
-    rows = list(cursor.fetchall())
-    cols = []
-    for col in cursor.description:
-        cols.append(col[0])
-    return render_template('display_table.html', title=table, rows=rows, cols=cols)
-
-
 # Updating data
 @app.route('/1')
 def screen_1():
@@ -56,7 +26,16 @@ def screen_1():
 
 @app.route('/2')
 def screen_2():
-    return render_template('2_create_bank.html')
+    cursor.execute("select corpID from corporation")
+    rows = list(cursor.fetchall())
+    corpIDs = [row[0] for row in rows]
+
+    cursor.execute("select perID from employee")
+    rows = list(cursor.fetchall())
+    employees = [row[0] for row in rows]
+    # TODO: make dropdowns only have employees who aren't already managers?
+
+    return render_template('2_create_bank.html', corpIDs=corpIDs, managers=employees, bankEmployees=employees)
 
 @app.route('/3')
 def screen_3():
@@ -91,21 +70,169 @@ def screen_6():
     cursor.execute("select bankID from bank")
     rows = list(cursor.fetchall())
     bankIDs = [row[0] for row in rows]
-    cursor.execute("select perID from employee")
+
+    cursor.execute("select perID from person")
     rows = list(cursor.fetchall())
     perIDs = [row[0] for row in rows]
-    return render_template('5_2_stop_customer_role.html', bankIDs=bankIDs, perIDs=perIDs)
+
+    return render_template('6_hire_worker.html', bankIDs=bankIDs, perIDs=perIDs)
 
 @app.route('/7')
 def screen_7():
     cursor.execute("select bankID from bank")
     rows = list(cursor.fetchall())
     bankIDs = [row[0] for row in rows]
+
     cursor.execute("select perID from employee")
     rows = list(cursor.fetchall())
     perIDs = [row[0] for row in rows]
+
     return render_template('7_replace_manager.html', bankIDs=bankIDs, perIDs=perIDs)
 
+@app.route('/8_1')
+def screen_8_1():
+    cursor.execute("select bankID, accountID from bank_account")
+    rows = list(cursor.fetchall())
+    accounts = [(row[0], row[1]) for row in rows]
+
+    cursor.execute("select perID from customer")
+    rows = list(cursor.fetchall())
+    customers = [row[0] for row in rows]
+
+    return render_template('8_1_manage_accounts_customer.html', accounts=accounts, customers=customers)
+
+# TODO: admin should have separate submit buttons for two portions maybe??
+@app.route('/8_2')
+def screen_8_2():
+    cursor.execute("select bankID from bank")
+    rows = list(cursor.fetchall())
+    bankIDs = [row[0] for row in rows]
+
+    accountTypes = ['Savings', 'Market', 'Checking']
+
+    return render_template('8_2_manage_accounts_admin.html', bankIDs=bankIDs, accountTypes=accountTypes)
+
+@app.route('/9')
+def screen_9():
+    cursor.execute("select bankID from bank_account")
+    rows = list(cursor.fetchall())
+    bankIDs = [row[0] for row in rows]
+
+    cursor.execute("select accountID from bank_account")
+    rows = list(cursor.fetchall())
+    accountIDs = [row[0] for row in rows]
+
+    return render_template('9_create_fee.html', bankIDs=bankIDs, accountIDs=accountIDs)
+
+# TODO: make savings accounts appear only when adding, not removing
+@app.route('/10')
+def screen_10():
+    cursor.execute("select bankID, accountID from checking")
+    rows = list(cursor.fetchall())
+    checkingAccounts = [(row[0], row[1]) for row in rows]
+
+    cursor.execute("select bankID, accountID from savings")
+    rows = list(cursor.fetchall())
+    savingsAccounts = [(row[0], row[1]) for row in rows]
+
+    return render_template('10_start_stop_overdraft.html', checkingAccounts=checkingAccounts, savingsAccounts=savingsAccounts)
+
+@app.route('/11_1')
+def screen_11_1():
+    cursor.execute("select bankID from bank_account")
+    rows = list(cursor.fetchall())
+    bankIDs = [row[0] for row in rows]
+
+    cursor.execute("select accountID from bank_account")
+    rows = list(cursor.fetchall())
+    accountIDs = [row[0] for row in rows]
+
+    return render_template('11_1_deposit.html', bankIDs=bankIDs, accountIDs=accountIDs)
+
+@app.route('/11_2')
+def screen_11_2():
+    cursor.execute("select bankID from bank_account")
+    rows = list(cursor.fetchall())
+    bankIDs = [row[0] for row in rows]
+
+    cursor.execute("select accountID from bank_account")
+    rows = list(cursor.fetchall())
+    accountIDs = [row[0] for row in rows]
+
+    return render_template('11_2_withdraw.html', bankIDs=bankIDs, accountIDs=accountIDs)
+
+@app.route('/12')
+def screen_12():
+    cursor.execute("select bankID from bank_account")
+    rows = list(cursor.fetchall())
+    bankIDs = [row[0] for row in rows]
+
+    cursor.execute("select accountID from bank_account")
+    rows = list(cursor.fetchall())
+    accountIDs = [row[0] for row in rows]
+
+    return render_template('12_transfer.html', fromBankIDs=bankIDs, fromAccountIDs=accountIDs, toBankIDs=bankIDs, toAccountIDs=accountIDs)
+
+@app.route('/13')
+def screen_13():
+    return render_template('13_pay_employees.html')
+
+# Displaying data
+@app.route('/14')
+def screen_14():
+    return display_table("display_account_stats")
+
+@app.route('/15')
+def screen_15():
+    return display_table("display_bank_stats")
+
+@app.route('/16')
+def screen_16():
+    return display_table("display_corporation_stats")
+
+@app.route('/17')
+def screen_17():
+    return display_table("display_customer_stats")
+
+@app.route('/18')
+def screen_18():
+    return display_table("display_employee_stats")
+
+def display_table(table):
+    cursor.execute("select * from " + table)
+    rows = list(cursor.fetchall())
+    cols = []
+    for col in cursor.description:
+        cols.append(col[0])
+    return render_template('display_table.html', title=table, rows=rows, cols=cols)
+
+# Navigation
+@app.route('/19')
+def screen_19():
+    return render_template('19_login.html')
+
+@app.route('/20')
+def screen_20():
+    return render_template('20_admin_navigation.html')
+
+@app.route('/21')
+def screen_21():
+    return render_template('21_manage_users.html')
+
+@app.route('/22')
+def screen_22():
+    return render_template('22_view_stats.html')
+
+@app.route('/23')
+def screen_23():
+    return render_template('23_manager_navigation.html')
+
+@app.route('/24')
+def screen_24():
+    return render_template('24_customer_navigation.html')
+
+
+# APIs
 
 @app.route('/api/1',methods=['POST'])
 def screen_1_submit():

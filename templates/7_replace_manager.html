@@ -12,12 +12,12 @@
     </div>
 
     <form id="form" method="POST">
-        <div><select name="bankID">
+        <div><text>bankID</text><select name="bankID">
             {% for bankID in bankIDs %}
             <option>{{bankID}}</option>
             {% endfor %}
         </select></div>
-        <div><select name="perID">
+        <div><text>perID</text><select name="perID">
             {% for perID in perIDs %}
             <option>{{perID}}</option>
             {% endfor %}
