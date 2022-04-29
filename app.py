@@ -25,6 +25,10 @@ mysql.init_app(app)
 conn = mysql.connect()
 cursor = conn.cursor()
 
+@app.route("/tutorial")
+def tutorial():
+    return render_template('tutorial_index.html')
+
 @app.route("/")
 def main():
     return render_template('index.html')
