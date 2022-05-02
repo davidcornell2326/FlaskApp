@@ -2,41 +2,87 @@
 <html lang="en">
 
 <head>
-    <title>create_bank</title>
+    <title>Create Bank</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 </head>
 
 <body>
-    <div class="header">
-        <a href="/">Home</a>
-        <h1>create_bank</h1>
+    <div class="container">
+        <div class="header">
+            <br/>
+            <h1 style="text-align: center;" class="mb-3">Create Bank</h1>
+        </div>
+
+        <form id="form" class="row g-3" method="POST">
+            <div class="form-floating col-12">
+                <input type="name" name="bankID" class="form-control" id="bankIDInput" placeholder="bankID" required autofocus>
+                <label for="bankIDInput">Bank ID</label>
+            </div>
+            <div class="form-floating col-12">
+                <input type="name" name="bankName" class="form-control" id="bankNameInput" placeholder="bankName" required>
+                <label for="bankNameInput">Name</label>
+            </div>
+
+            <strong style="margin-bottom: 0px;">Address Info</strong>
+            <div class="form-floating col-12" style="margin-top: 8px;">
+                <input type="name" name="street" class="form-control" id="streetInput" placeholder="street" required>
+                <label for="streetInput">Street</label>
+            </div>
+            <div class="form-floating col-md-6">
+                <input type="name" name="city" class="form-control" id="cityInput" placeholder="city" required>
+                <label for="streetInput">City</label>
+            </div>
+            <div class="form-floating col-md-4">
+                <input type="name" name="state" class="form-control" id="stateInput" placeholder="state" required>
+                <label for="stateInput">State</label>
+            </div>
+            <div class="form-floating col-md-2">
+                <input type="name" name="zip" class="form-control" id="zipInput" placeholder="zip" required>
+                <label for="zipInput">Zip</label>
+            </div>
+
+            <strong style="margin-bottom: 0px;">Operation Info</strong>
+            <div class="form-floating" style="margin-top: 8px;">
+                <input type="number" name="resAssets" class="form-control" id="resAssetsInput" placeholder="resAssets" required>
+                <label for="resAssetsInput">Reserved Assets</label>
+            </div>
+            <div class="col-md-4">
+                <label for="corpIDInput">Corp ID</label>
+                <select name="corpID" class="form-select mb-3" id="corpIdInput">
+                    {% for corpID in corpIDs %}
+                    <option>{{corpID}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="managerInput">Manager</label>
+                <select name="manager" class="form-select mb-3" id="managerInput">
+                    {% for manager in managers %}
+                    <option>{{manager}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="employeeInput">Employee</label>
+                <select name="bankEmployee" class="form-select mb-3" id="employeeInput">
+                    {% for bankEmployee in bankEmployees %}
+                    <option>{{bankEmployee}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <div class="d-grid gap-2">
+                        <a class="btn btn-secondary btn-lg" role="button" href="/">Back</a>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="d-grid gap-2"><button type="submit" class="btn btn-primary btn-lg">Submit</button></div>
+                </div>
+              </div>
+        </form>
     </div>
-
-    <form id="form" method="POST">
-        <div><input type="name" name="bankID" placeholder="bankID" required autofocus /></div>
-        <div><input type="name" name="bankName" placeholder="bankName" required /></div>
-        <div><input type="name" name="street" placeholder="street" required /></div>
-        <div><input type="name" name="city" placeholder="city" required /></div>
-        <div><input type="name" name="state" placeholder="state" required /></div>
-        <div><input type="name" name="zip" placeholder="zip" required /></div>
-        <div><input type="number" name="resAssets" placeholder="resAssets" required /></div>
-        <div><text>corpID</text><select name="corpID">
-            {% for corpID in corpIDs %}
-            <option>{{corpID}}</option>
-            {% endfor %}
-        </select></div>
-        <div><text>manager</text><select name="manager">
-            {% for manager in managers %}
-            <option>{{manager}}</option>
-            {% endfor %}
-        </select></div>
-        <div><text>bankEmployee</text><select name="bankEmployee">
-            {% for bankEmployee in bankEmployees %}
-            <option>{{bankEmployee}}</option>
-            {% endfor %}
-        </select></div>
-
-        <button type="submit">Submit</button>
-    </form>
 
     <script>
         document.querySelector('#form').addEventListener("submit", async function (e) {
