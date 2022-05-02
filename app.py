@@ -53,14 +53,14 @@ def screen_2():
 
 @app.route('/3')
 def screen_3():
-    cursor.execute("select perID from employee")
+    cursor.execute("select perID from bank_user")
     rows = list(cursor.fetchall())
     perIDs = [row[0] for row in rows]
     return render_template('3_create_employee_role.html', perIDs=perIDs)
 
 @app.route('/4')
 def screen_4():
-    cursor.execute("select perID from customer")
+    cursor.execute("select perID from bank_user")
     rows = list(cursor.fetchall())
     perIDs = [row[0] for row in rows]
     return render_template('4_create_customer_role.html', perIDs=perIDs)
