@@ -1,9 +1,10 @@
 # https://code.tutsplus.com/tutorials/creating-a-web-app-from-scratch-using-python-flask-and-mysql--cms-22972
-from flask import Flask, render_template, json, request
+from flask import Flask, render_template, json, request, redirect
 from flaskext.mysql import MySQL
 
 from dotenv import dotenv_values
 from os.path import exists
+from datetime import date
 
 user = 'root'
 password = ' '
@@ -32,6 +33,24 @@ def tutorial():
 @app.route("/")
 def main():
     return render_template('index.html')
+
+@app.route("/status")
+def status():
+    cursor.execute('select * from success')
+    rows = list(cursor.fetchall())
+    if len(rows) > 0:
+        message = 'Procedure executed successfully'
+        if rows[0][0] == 'failed':
+            message = f'''Procedure failed to execute successfully. Please ensure the data entered is valid and try again.\n
+            Procedure ID: {rows[0][1]}\n
+            Procedure message: {rows[0][2]}\n
+            Procedure timestamp: {rows[0][3]}
+            '''
+            # TODO: style HTML to make newlines appear correctly
+
+    else: # reset DB case
+        message = "Database reset successfully"
+    return render_template('status.html', message=message)
 
 # Updating data
 @app.route('/1')
@@ -85,7 +104,7 @@ def screen_6():
     rows = list(cursor.fetchall())
     bankIDs = [row[0] for row in rows]
 
-    cursor.execute("select perID from person")
+    cursor.execute("select * from employee")
     rows = list(cursor.fetchall())
     perIDs = [row[0] for row in rows]
 
@@ -105,7 +124,7 @@ def screen_7():
 
 @app.route('/8_1')
 def screen_8_1():
-    cursor.execute("select bankID, accountID from bank_account")
+    cursor.execute("select bankID, accountID from bank_account") # TODO: only have accounts accessible to currently logged in user
     rows = list(cursor.fetchall())
     accounts = [(row[0], row[1]) for row in rows]
 
@@ -128,6 +147,7 @@ def screen_8_2():
 
 @app.route('/9')
 def screen_9():
+    # TODO: only include interest-bearing accounts
     cursor.execute("select bankID from bank_account")
     rows = list(cursor.fetchall())
     bankIDs = [row[0] for row in rows]
@@ -149,6 +169,7 @@ def screen_10():
     rows = list(cursor.fetchall())
     savingsAccounts = [(row[0], row[1]) for row in rows]
 
+    # TODO: make savings account option only appear if button checked
     return render_template('10_start_stop_overdraft.html', checkingAccounts=checkingAccounts, savingsAccounts=savingsAccounts)
 
 @app.route('/11_1')
@@ -256,6 +277,8 @@ def screen_24():
 
 @app.route('/api/1',methods=['POST'])
 def screen_1_submit():
+    # redirect('/')
+    screen_1()
     _corpID = request.form['corpID']
     _shortName = request.form['shortName']
     _longName = request.form['longName']
@@ -295,11 +318,30 @@ def screen_2_submit():
 @app.route('/api/3',methods=['POST'])
 def screen_3_submit():
     _perID = request.form['perID']
+
+    cursor.execute("select pwd from person where perID = \'" + _perID + "\'")
+    rows = list(cursor.fetchall())
+    pwd = rows[0][0]
+
+    cursor.execute("select * from bank_user where perID = \'" + _perID + "\'")
+    rows = list(cursor.fetchall())
+    bank_user = rows[0]
+
+    _taxID = bank_user[1]
+    _firstName = bank_user[3]
+    _lastName = bank_user[4]
+    _birthdate = bank_user[2]
+    _street = bank_user[6]
+    _city = bank_user[7]
+    _state = bank_user[8]
+    _zip = bank_user[9]
+    _dtJoined = bank_user[5]
     _salary = request.form['salary']
-    _numPayments = request.form['numPayments']
-    _earnings = request.form['earnings']
+    _payments = request.form['numPayments']
+    _earned = request.form['earnings']
+    _password = pwd
     
-    cursor.callproc('start_employee_role', [])      # NOT WORKING YET
+    cursor.callproc('start_employee_role', [_perID, _taxID, _firstName, _lastName, _birthdate, _street, _city, _state, _zip, _dtJoined, _salary, _payments, _earned, _password])
 
     data = cursor.fetchall()
     if len(data) == 0:
@@ -311,8 +353,27 @@ def screen_3_submit():
 @app.route('/api/4',methods=['POST'])
 def screen_4_submit():
     _perID = request.form['perID']
+
+    cursor.execute("select pwd from person where perID = \'" + _perID + "\'")
+    rows = list(cursor.fetchall())
+    pwd = rows[0][0]
+
+    cursor.execute("select * from bank_user where perID = \'" + _perID + "\'")
+    rows = list(cursor.fetchall())
+    bank_user = rows[0]
+
+    _taxID = bank_user[1]
+    _firstName = bank_user[3]
+    _lastName = bank_user[4]
+    _birthdate = bank_user[2]
+    _street = bank_user[6]
+    _city = bank_user[7]
+    _state = bank_user[8]
+    _zip = bank_user[9]
+    _dtJoined = bank_user[5]
+    _password = pwd
     
-    cursor.callproc('start_customer_role', [])      # NOT WORKING YET
+    cursor.callproc('start_customer_role', [_perID, _taxID, _firstName, _lastName, _birthdate, _street, _city, _state, _zip, _dtJoined, _password])      # NOT WORKING YET
 
     data = cursor.fetchall()
     if len(data) == 0:
@@ -351,8 +412,9 @@ def screen_5_2_submit():
 def screen_6_submit():
     _bankID = request.form['bankID']
     _perID = request.form['perID']
+    _salary = request.form['salary']
     
-    cursor.callproc('hire_worker', [])      # NOT WORKING YET
+    cursor.callproc('hire_worker', [_perID, _bankID, _salary])
 
     data = cursor.fetchall()
     if len(data) == 0:
@@ -367,7 +429,7 @@ def screen_7_submit():
     _perID = request.form['perID']
     _salary = request.form['salary']
     
-    cursor.callproc('replace_manager', [_perID, _bankID, salary])      # NOT WORKING YET
+    cursor.callproc('replace_manager', [_perID, _bankID, salary])
 
     data = cursor.fetchall()
     if len(data) == 0:
@@ -376,9 +438,248 @@ def screen_7_submit():
     else:
         return json.dumps({'error':str(data[0])})
 
+@app.route('/api/8_1',methods=['POST'])
+def screen_8_1_submit():
+    # 'mmoss7', 'atrebek1', 'savings', 'TD_GT', 'new_savings', 4000, 10, null, 0, null, null, '2022-03-03'
+    _requester = 'mmoss7' # TODO: requester needs to be currently logged in user
+    _customer = request.form['customer']
+    _account = request.form['account'] # TODO: need to parse differently once styling is done 
+    mid = _account.index('\', \'')
+    _bankID = _account[2:mid]
+    _accountID = _account[mid+4:len(_account)-2]
+
+    # get account type
+    cursor.execute('select * from savings where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
+    rows = list(cursor.fetchall())
+    if len(rows) > 0:
+        _accountType = 'savings'
+    cursor.execute('select * from checking where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
+    rows = list(cursor.fetchall())
+    if len(rows) > 0:
+        _accountType = 'checking'
+    cursor.execute('select * from market where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
+    rows = list(cursor.fetchall())
+    if len(rows) > 0:
+        _accountType = 'market'
+
+    cursor.execute('select balance from bank_account where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
+    rows = list(cursor.fetchall())
+    _balance = rows[0][0]
+    
+    _interestRate = None
+    _dtDeposit = None
+    _minBalance = None
+    _numWithdrawals = None
+    _maxWithdrawals = None
+    _dtShareStart = str(date.today())
+
+    if _accountType == 'savings':
+        cursor.execute('select minBalance from savings where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
+        rows = list(cursor.fetchall())
+        _minBalance = rows[0][0]
+    elif _accountType == 'market':
+        cursor.execute('select maxWithdrawals, numWithdrawals from market where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
+        rows = list(cursor.fetchall())
+        _maxWithdrawals = rows[0][0]
+        _numWithdrawals = rows[0][1]
+
+    if _accountType == 'savings' or _accountType == 'market':
+        cursor.execute('select interest_rate, dtDeposit from interest_bearing where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
+        rows = list(cursor.fetchall())
+        _interestRate = rows[0][0]
+        _dtDeposit = rows[0][1]
+
+    _adding = request.form['addingRemoving'] == 'Adding' # True if adding, False if removing
 
 
+    if _adding:
+        cursor.callproc('add_account_access', [_requester, _customer, _accountType, _bankID, _accountID, _balance, _interestRate, _dtDeposit, _minBalance, _numWithdrawals, _maxWithdrawals, _dtShareStart])
+    else:
+        cursor.callproc('remove_account_access', [_requester, _customer, _bankID, _accountID])
 
+    data = cursor.fetchall()
+    if len(data) == 0:
+        conn.commit()
+        return json.dumps({'message':'Success'})
+    else:
+        return json.dumps({'error':str(data[0])})
+
+@app.route('/api/8_2',methods=['POST'])
+def screen_8_2_submit():
+    # 'mmoss7', 'atrebek1', 'savings', 'TD_GT', 'new_savings', 4000, 10, null, 0, null, null, '2022-03-03'
+    _requester = 'mmoss7' # TODO: requester needs to be currently logged in user
+    _customer = request.form['customer']
+    _account = request.form['account'] # TODO: need to parse differently once styling is done 
+    mid = _account.index('\', \'')
+    _bankID = _account[2:mid]
+    _accountID = _account[mid+4:len(_account)-2]
+
+    # get account type
+    cursor.execute('select * from savings where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
+    rows = list(cursor.fetchall())
+    if len(rows) > 0:
+        _accountType = 'savings'
+    cursor.execute('select * from checking where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
+    rows = list(cursor.fetchall())
+    if len(rows) > 0:
+        _accountType = 'checking'
+    cursor.execute('select * from market where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
+    rows = list(cursor.fetchall())
+    if len(rows) > 0:
+        _accountType = 'market'
+
+    cursor.execute('select balance from bank_account where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
+    rows = list(cursor.fetchall())
+    _balance = rows[0][0]
+    
+    _interestRate = request.form['balance']
+    _dtDeposit = None
+    _minBalance = request.form['minBalance']
+    _numWithdrawals = request.form['numWithdrawals']
+    _maxWithdrawals = request.form['maxWithdrawals']
+    _dtShareStart = str(date.today())
+
+    if _accountType == 'savings':
+        cursor.execute('select minBalance from savings where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
+        rows = list(cursor.fetchall())
+        _minBalance = rows[0][0]
+    elif _accountType == 'market':
+        cursor.execute('select maxWithdrawals, numWithdrawals from market where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
+        rows = list(cursor.fetchall())
+        _maxWithdrawals = rows[0][0]
+        _numWithdrawals = rows[0][1]
+
+    if _accountType == 'savings' or _accountType == 'market':
+        cursor.execute('select interest_rate, dtDeposit from interest_bearing where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
+        rows = list(cursor.fetchall())
+        _interestRate = rows[0][0]
+        _dtDeposit = rows[0][1]
+
+    _adding = request.form['addingRemoving'] == 'Adding' # True if adding, False if removing
+
+
+    if _adding:
+        cursor.callproc('add_account_access', [_requester, _customer, _accountType, _bankID, _accountID, _balance, _interestRate, _dtDeposit, _minBalance, _numWithdrawals, _maxWithdrawals, _dtShareStart])
+    else:
+        cursor.callproc('remove_account_access', [_requester, _customer, _bankID, _accountID])
+
+    data = cursor.fetchall()
+    if len(data) == 0:
+        conn.commit()
+        return json.dumps({'message':'Success'})
+    else:
+        return json.dumps({'error':str(data[0])})
+
+@app.route('/api/9',methods=['POST'])
+def screen_9_submit():
+    _bankID = request.form['bankID']
+    _accountID = request.form['accountID']
+    _feeType = request.form['feeType']
+
+    cursor.callproc('create_fee', [_bankID, _accountID, _feeType])
+
+    data = cursor.fetchall()
+    if len(data) == 0:
+        conn.commit()
+        return json.dumps({'message':'Success'})
+    else:
+        return json.dumps({'error':str(data[0])})
+
+@app.route('/api/10',methods=['POST'])
+def screen_10_submit():
+    # start: 'tjtalbot4', 'TD_Online', 'company_checking', 'WF_2', 'savings_A'
+    # stop: "owalter6", "BA_West", "checking_A"
+    _requester = 'tjtalbot4'
+    # TODO: requester needs to be currently logged in user
+    _checkingAccount = request.form['checkingAccount'] # TODO: need to parse differently once styling is done 
+    mid = _checkingAccount.index('\', \'')
+    _checkingBankID = _checkingAccount[2:mid]
+    _checkingAccountID = _checkingAccount[mid+4:-2]
+    _start = request.form['startStop'] == 'Start' # True if start, False if stop
+    _savingsAccount = request.form['savingsAccount'] # TODO: need to parse differently once styling is done 
+    mid = _savingsAccount.index('\', \'')
+    _savingsBankID = _savingsAccount[2:mid]
+    _savingsAccountID = _savingsAccount[mid+4:-2]
+
+    if _start:
+        cursor.callproc('start_overdraft', [_requester, _checkingBankID, _checkingAccountID, _savingsBankID, _savingsAccountID])
+    else:
+        cursor.callproc('stop_overdraft', [_requester, _checkingBankID, _checkingAccountID])
+
+
+    data = cursor.fetchall()
+    if len(data) == 0:
+        conn.commit()
+        return json.dumps({'message':'Success'})
+    else:
+        return json.dumps({'error':str(data[0])})
+
+@app.route('/api/11_1',methods=['POST'])
+def screen_11_1_submit():
+    _requester = ''
+    # TODO: requester needs to be currently logged in user
+    _amount = request.form['amount']
+    _bankID = request.form['bankID']
+    _accountID = request.form['accountID']
+    _dtAction = str(date.today())
+
+    cursor.callproc('account_deposit', [_requester, _amount, _bankID, _accountID, _dtAction])
+
+    data = cursor.fetchall()
+    if len(data) == 0:
+        conn.commit()
+        return json.dumps({'message':'Success'})
+    else:
+        return json.dumps({'error':str(data[0])})
+
+@app.route('/api/11_2',methods=['POST'])
+def screen_11_2_submit():
+    _requester = ''
+    # TODO: requester needs to be currently logged in user
+    _amount = request.form['amount']
+    _bankID = request.form['bankID']
+    _accountID = request.form['accountID']
+    _dtAction = str(date.today())
+
+    cursor.callproc('account_withdrawal', [_requester, _amount, _bankID, _accountID, _dtAction])
+
+    data = cursor.fetchall()
+    if len(data) == 0:
+        conn.commit()
+        return json.dumps({'message':'Success'})
+    else:
+        return json.dumps({'error':str(data[0])})
+
+@app.route('/api/12',methods=['POST'])
+def screen_12_submit():
+    _requester = ''
+    # TODO: requester needs to be currently logged in user
+    _fromBankID = request.form['fromBankID']
+    _fromAccountID = request.form['fromAccountID']
+    _amount = request.form['amount']
+    _toBankID = request.form['toBankID']
+    _toAccountID = request.form['toAccountID']
+    _dtAction = str(date.today())
+
+    cursor.callproc('account_transfer', [_requester, _amount, _fromBankID, _fromAccountID, _toBankID, _toAccountID, _dtAction])
+
+    data = cursor.fetchall()
+    if len(data) == 0:
+        conn.commit()
+        return json.dumps({'message':'Success'})
+    else:
+        return json.dumps({'error':str(data[0])})
+
+@app.route('/api/13',methods=['POST'])
+def screen_13_submit():
+    cursor.callproc('pay_employees', [])
+
+    data = cursor.fetchall()
+    if len(data) == 0:
+        conn.commit()
+        return json.dumps({'message':'Success'})
+    else:
+        return json.dumps({'error':str(data[0])})
 
 
 
@@ -402,6 +703,7 @@ def exec_sql_file(cursor, sql_file):
                 print("\n[WARN] MySQLError during execute statement \n\tArgs: '%s'" % (str(e.args)))
 
             statement = ""
+    conn.commit()
 
 # Method to reset the database contents (does NOT reset the stored procedures)
 @app.route('/api/reset',methods=['POST'])
@@ -413,9 +715,14 @@ def reset_db():
     return json.dumps({'message':'Reset database'})
 
 # if you want to initialize database when the first request is receieved after startup:
-# @app.before_first_request
-# def _():
-#     reset_db()
+@app.before_first_request
+def _():
+    reset_db()
 
 if __name__ == "__main__":
     app.run()
+
+
+
+# TODO: make add_person method/page that adds a person to person and bank_user (and maybe add admin as an option?)
+# TODO: logout screen
