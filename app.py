@@ -1,5 +1,5 @@
 # https://code.tutsplus.com/tutorials/creating-a-web-app-from-scratch-using-python-flask-and-mysql--cms-22972
-from flask import Flask, render_template, json, request
+from flask import Flask, render_template, json, request, redirect
 from flaskext.mysql import MySQL
 
 from dotenv import dotenv_values
@@ -33,6 +33,24 @@ def tutorial():
 @app.route("/")
 def main():
     return render_template('index.html')
+
+@app.route("/status")
+def status():
+    cursor.execute('select * from success')
+    rows = list(cursor.fetchall())
+    if len(rows) > 0:
+        message = 'Procedure executed successfully'
+        if rows[0][0] == 'failed':
+            message = f'''Procedure failed to execute successfully. Please ensure the data entered is valid and try again.\n
+            Procedure ID: {rows[0][1]}\n
+            Procedure message: {rows[0][2]}\n
+            Procedure timestamp: {rows[0][3]}
+            '''
+            # TODO: style HTML to make newlines appear correctly
+
+    else: # reset DB case
+        message = "Database reset successfully"
+    return render_template('status.html', message=message)
 
 # Updating data
 @app.route('/1')
@@ -253,6 +271,8 @@ def screen_24():
 
 @app.route('/api/1',methods=['POST'])
 def screen_1_submit():
+    # redirect('/')
+    screen_1()
     _corpID = request.form['corpID']
     _shortName = request.form['shortName']
     _longName = request.form['longName']
@@ -689,9 +709,9 @@ def reset_db():
     return json.dumps({'message':'Reset database'})
 
 # if you want to initialize database when the first request is receieved after startup:
-# @app.before_first_request
-# def _():
-#     reset_db()
+@app.before_first_request
+def _():
+    reset_db()
 
 if __name__ == "__main__":
     app.run()

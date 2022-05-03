@@ -17,6 +17,7 @@ delete from employee;
 delete from bank_user;
 delete from system_admin;
 delete from person;
+delete from success;
 
 -- Ensure that the data is inserted in order with respect to the
 -- foreign key dependencies (i.e., from parents down to children).
