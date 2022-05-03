@@ -26,13 +26,58 @@ mysql.init_app(app)
 conn = mysql.connect()
 cursor = conn.cursor()
 
+bank_user = '';
+user_roles = [];
+
 @app.route("/tutorial")
 def tutorial():
     return render_template('tutorial_index.html')
 
 @app.route("/")
-def main():
-    return render_template('index.html')
+def login():
+    cursor.execute("select perID from person")
+    rows = list(cursor.fetchall())
+    perIDs = [row[0] for row in rows]
+    cursor.execute("select pwd from person")
+    rows = list(cursor.fetchall())
+    pwds = [row[0] for row in rows]
+    cursor.execute("select perID from customer")
+    rows = list(cursor.fetchall())
+    custIDs = [row[0] for row in rows]
+    cursor.execute("select perID from system_admin")
+    rows = list(cursor.fetchall())
+    adminIDs = [row[0] for row in rows]
+    cursor.execute("select manager from bank")
+    rows = list(cursor.fetchall())
+    managerIDs = [row[0] for row in rows]
+    print(perIDs)
+    print(pwds)
+    if request.method == "POST":
+        uname = request.form.get("uname")
+        pword = request.form.get("pass")
+        if uname in perIDs:
+            if pword == pwds[perIDs.index(uname)]:
+                    bank_user = uname;
+                    if uname in adminIDs:
+                        user_roles = ['admin']
+                        return render_template('index.html') # admin
+                    elif uname in custIDs:
+                        if uname in managerIDs:
+                            user_roles = ['manager','customer']
+                            return render_template('index.html') #manager and customer
+                        else:
+                            user_roles = ['customer']
+                            return render_template('index.html') #customer only
+                    elif uname in managerIDs:
+                        user_roles = ['manager']
+                        return render_template('index.html') #manager only
+    return render_template('login.html')
+
+@app.route('/logout',methods=['POST'])
+def logout():
+    bank_user = '';
+    user_roles = [];
+    return render_template('login.html')
 
 @app.route("/status")
 def status():
