@@ -35,6 +35,8 @@ def tutorial():
 
 @app.route("/",methods=['GET','POST'])
 def login():
+    global bank_user
+    global user_roles
     cursor.execute("select perID from person")
     rows = list(cursor.fetchall())
     perIDs = [row[0] for row in rows]
@@ -75,11 +77,13 @@ def login():
 
 @app.route('/logout',methods=['GET','POST'])
 def logout():
+    global bank_user
+    global user_roles
     bank_user = '';
     user_roles = [];
     return render_template('login.html')
 
-@app.route('/')
+@app.route('/home')
 def home():
     if user_roles == ['admin']:
         return render_template('20_admin_navigation.html')
@@ -184,6 +188,9 @@ def screen_8():
 
 @app.route('/8_1')
 def screen_8_1():
+    print('----------------')
+    print(bank_user)
+    print('----------------')
     cursor.execute("select bankID, accountID from bank_account") # TODO: only have accounts accessible to currently logged in user
     rows = list(cursor.fetchall())
     accounts = [(row[0], row[1]) for row in rows]
@@ -497,10 +504,12 @@ def screen_7_submit():
 @app.route('/api/8_1',methods=['POST'])
 def screen_8_1_submit():
     # 'mmoss7', 'atrebek1', 'savings', 'TD_GT', 'new_savings', 4000, 10, null, 0, null, null, '2022-03-03'
-    _requester = 'mmoss7' # TODO: requester needs to be currently logged in user
+    _requester = bank_user
     _customer = request.form['customer']
     _account = request.form['account']
     (_bankID, _accountID) = get_bankID_and_accountID(_account)
+    print(_bankID)
+    print(_accountID)
 
     # get account type
     cursor.execute('select * from savings where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
@@ -546,6 +555,7 @@ def screen_8_1_submit():
     _adding = request.form['addingRemoving'] == 'Adding' # True if adding, False if removing
 
     if _adding:
+        print([_requester, _customer, _accountType, _bankID, _accountID, _balance, _interestRate, _dtDeposit, _minBalance, _numWithdrawals, _maxWithdrawals, _dtShareStart])
         cursor.callproc('add_account_access', [_requester, _customer, _accountType, _bankID, _accountID, _balance, _interestRate, _dtDeposit, _minBalance, _numWithdrawals, _maxWithdrawals, _dtShareStart])
     else:
         cursor.callproc('remove_account_access', [_requester, _customer, _bankID, _accountID])
@@ -560,7 +570,7 @@ def screen_8_1_submit():
 @app.route('/api/8_2',methods=['POST'])
 def screen_8_2_submit():
     # 'mmoss7', 'atrebek1', 'savings', 'TD_GT', 'new_savings', 4000, 10, null, 0, null, null, '2022-03-03'
-    _requester = 'mmoss7' # TODO: requester needs to be currently logged in user
+    _requester = bank_user
     _customer = request.form['customer']
     _bankID = request.form['bankID']
     _accountID = request.form['accountID']
@@ -600,10 +610,7 @@ def screen_9_submit():
 
 @app.route('/api/10',methods=['POST'])
 def screen_10_submit():
-    # start: 'tjtalbot4', 'TD_Online', 'company_checking', 'WF_2', 'savings_A'
-    # stop: "owalter6", "BA_West", "checking_A"
-    _requester = 'tjtalbot4'
-    # TODO: requester needs to be currently logged in user
+    _requester = bank_user
     _checkingAccount = request.form['checkingAccount']
     (_checkingBankID, _checkingAccountID) = get_bankID_and_accountID(_checkingAccount)
     _start = request.form['startStop'] == 'Start' # True if start, False if stop
@@ -625,8 +632,7 @@ def screen_10_submit():
 
 @app.route('/api/11_1',methods=['POST'])
 def screen_11_1_submit():
-    _requester = ''
-    # TODO: requester needs to be currently logged in user
+    _requester = bank_user
     _amount = request.form['amount']
     _bankID = request.form['bankID']
     _accountID = request.form['accountID']
@@ -643,8 +649,7 @@ def screen_11_1_submit():
 
 @app.route('/api/11_2',methods=['POST'])
 def screen_11_2_submit():
-    _requester = ''
-    # TODO: requester needs to be currently logged in user
+    _requester = bank_user
     _amount = request.form['amount']
     _bankID = request.form['bankID']
     _accountID = request.form['accountID']
@@ -661,8 +666,7 @@ def screen_11_2_submit():
 
 @app.route('/api/12',methods=['POST'])
 def screen_12_submit():
-    _requester = ''
-    # TODO: requester needs to be currently logged in user
+    _requester = bank_user
     _fromBankID = request.form['fromBankID']
     _fromAccountID = request.form['fromAccountID']
     _amount = request.form['amount']
@@ -737,8 +741,3 @@ def _():
 
 if __name__ == "__main__":
     app.run()
-
-
-
-# TODO: make add_person method/page that adds a person to person and bank_user (and maybe add admin as an option?)
-# TODO: logout screen
