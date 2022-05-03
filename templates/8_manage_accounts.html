@@ -18,72 +18,11 @@
         <div class="d-grid gap-2">
             <a class="btn btn-secondary btn-lg" role="button" href="8_1">Add/Remove Account Access</a>
             <a class="btn btn-secondary btn-lg" role="button" href="8_2">Create New Account</a>
+            <a class="btn btn-secondary btn-lg" role="button" href="home">Home</a>
         </div>
-
-        <!-- <form id="form" method="POST">
-            <div class="form-floating mb-3">
-                <input type="name" name="corpID" class="form-control" id="corpIDInput" placeholder="corpID" required autofocus>
-                <label for="corpIDInput">Corporation ID</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input type="name" name="shortName" class="form-control" id="shortNameInput" placeholder="shortName" required>
-                <label for="shortNameInput">Short Name</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input type="name" name="longName" class="form-control" id="longNameInput" placeholder="longName" required>
-                <label for="longNameInput">Long Name</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input type="number" name="resAssets" class="form-control" id="resAssetsInput" placeholder="resAssets" required>
-                <label for="resAssetsInput">Reserved Assets</label>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <div class="d-grid gap-2">
-                        <a class="btn btn-secondary btn-lg" role="button" href="20">Back</a>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="d-grid gap-2"><button type="submit" class="btn btn-primary btn-lg">Submit</button></div>
-                </div>
-            </div>
-            
-        </form> -->
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-    <script>
-        function pop_alert(message, type) {
-            var wrapper = document.createElement('div');
-            wrapper.innerHTML = '<div class="alert alert-' + type + ' alert-dismissible fade show mt-3" role="alert">' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
-
-            document.getElementById('alertPlaceholder').append(wrapper);
-        }
-
-        document.querySelector('#form').addEventListener("submit", async function (e) {
-            e.preventDefault()
-            console.log(new URLSearchParams(new FormData(e.target)).toString())
-            const res = await fetch("/api/1", {
-                body: new URLSearchParams(new FormData(e.target)).toString(),
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                }
-            // }).then((res) => {
-            //     res.json().then((json_res) => {
-            //         if(json_res.message && json_res.message=='Success') {
-            //             pop_alert('Success', 'success');
-            //         } else if (json_res.error) {
-            //             pop_alert('Error: ' + json_res.error, 'danger');
-            //         } else {
-            //             pop_alert('Unknown error', 'warning');
-            //         }
-            //     });
-            });
-            await res.json()
-            window.location = '/status'
-        });
-    </script>
 </body>
 
 </html>

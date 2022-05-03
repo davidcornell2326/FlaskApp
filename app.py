@@ -57,6 +57,7 @@ def login():
     if request.method == "POST":
         uname = request.form.get("uname")
         pword = request.form.get("pass")
+        print(uname, pword)
         if uname in perIDs:
             if pword == pwds[perIDs.index(uname)]:
                     bank_user = uname;
@@ -73,7 +74,7 @@ def login():
                     elif uname in managerIDs:
                         user_roles = ['manager']
                         return render_template('23_manager_navigation.html') #manager only
-    return render_template('login.html')
+    return render_template('19_login.html')
 
 @app.route('/logout',methods=['GET','POST'])
 def logout():
@@ -726,18 +727,18 @@ def exec_sql_file(cursor, sql_file):
     conn.commit()
 
 # Method to reset the database contents (does NOT reset the stored procedures)
-@app.route('/api/reset',methods=['POST'])
+@app.route('/api/reset',methods=['GET','POST'])
 def reset_db():
     print('Resetting the database...')
     exec_sql_file(cursor, "reset.sql")
     print('Reset the database.')
 
-    return json.dumps({'message':'Reset database'})
+    return status()
 
 # if you want to initialize database when the first request is receieved after startup:
-@app.before_first_request
-def _():
-    reset_db()
+# @app.before_first_request
+# def _():
+#     reset_db()
 
 if __name__ == "__main__":
     app.run()

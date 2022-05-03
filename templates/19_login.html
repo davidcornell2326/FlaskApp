@@ -15,24 +15,24 @@
             <h1 style="text-align: center;" class="mb-3">Login</h1>
         </div>
 
-        <form id="form" method="POST">
+        <form id="login" method="post" action="{{url_for("login")}}">
             <div class="row">
                 <div class="form-floating col-12 mb-3">
-                    <input type="name" name="perID" class="form-control" id="perIDInput" placeholder="perID" required>
-                    <label for="perIDInput">ID</label>
+                    <input type="name" name="uname" class="form-control" id="unameInput" placeholder="User ID" required>
+                    <label for="uname">User ID</label>
                 </div>
             </div>
             <div class="row">
                 <div class="form-floating col-12 mb-3">
-                    <input type="password" name="password" class="form-control" id="passwordInput" placeholder="password" required>
-                    <label for="passwordInput">Password</label>
+                    <input type="password" name="pass" class="form-control" id="passInput" placeholder="password" required>
+                    <label for="passInput">Password</label>
                 </div>
             </div>
 
             <div class="row">
                 <div class="col">
                     <div class="d-grid gap-2">
-                        <a class="btn btn-primary btn-lg mb-3" role="button" href="/">Login</a>
+                        <button class="btn btn-primary btn-lg mb-3" type="submit">Login</a>
                     </div>
                 </div>
             </div>
@@ -40,7 +40,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-    <script>
+    <!-- <script>
         function pop_alert(message, type) {
             var wrapper = document.createElement('div');
             wrapper.innerHTML = '<div class="alert alert-' + type + ' alert-dismissible fade show mt-3" role="alert">' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
@@ -68,7 +68,7 @@
                 });
             });
         });
-    </script>
+    </script> -->
 </body>
 
 </html>
