@@ -33,7 +33,7 @@
                     <input type="radio" class="btn-check btn-lg" id="adding" autocomplete="off" name="addingRemoving" value="Adding" checked>
                     <label class="btn btn-outline-success" for="adding">Adding</label>
                     
-                    <input type="radio" class="btn-check btn-lg" id="removing" autocomplete="off" name="addingRemoving" value="Adding">
+                    <input type="radio" class="btn-check btn-lg" id="removing" autocomplete="off" name="addingRemoving" value="Removing">
                     <label class="btn btn-outline-danger" for="removing">Removing</label>
                 </div>
             </div>
@@ -62,23 +62,25 @@
         document.querySelector('#form').addEventListener("submit", async function (e) {
             e.preventDefault()
             console.log(new URLSearchParams(new FormData(e.target)).toString())
-            fetch("/api/8_1", {
+            const res = await fetch("/api/8_1", {
                 body: new URLSearchParams(new FormData(e.target)).toString(),
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 }
-            }).then((res) => {
-                res.json().then((json_res) => {
-                    if(json_res.message && json_res.message=='Success') {
-                        pop_alert('Success', 'success');
-                    } else if (json_res.error) {
-                        pop_alert('Error: ' + json_res.error, 'danger');
-                    } else {
-                        pop_alert('Unknown error', 'warning');
-                    }
-                });
+            // }).then((res) => {
+            //     res.json().then((json_res) => {
+            //         if(json_res.message && json_res.message=='Success') {
+            //             pop_alert('Success', 'success');
+            //         } else if (json_res.error) {
+            //             pop_alert('Error: ' + json_res.error, 'danger');
+            //         } else {
+            //             pop_alert('Unknown error', 'warning');
+            //         }
+            //     });
             });
+            await res.json()
+            window.location = '/status'
         });
     </script>
 </body>
