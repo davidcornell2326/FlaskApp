@@ -33,7 +33,7 @@ user_roles = [];
 def tutorial():
     return render_template('tutorial_index.html')
 
-@app.route("/")
+@app.route("/",methods=['GET','POST'])
 def login():
     cursor.execute("select perID from person")
     rows = list(cursor.fetchall())
@@ -50,8 +50,8 @@ def login():
     cursor.execute("select manager from bank")
     rows = list(cursor.fetchall())
     managerIDs = [row[0] for row in rows]
-    print(perIDs)
-    print(pwds)
+    # print(perIDs)
+    # print(pwds)
     if request.method == "POST":
         uname = request.form.get("uname")
         pword = request.form.get("pass")
@@ -60,24 +60,35 @@ def login():
                     bank_user = uname;
                     if uname in adminIDs:
                         user_roles = ['admin']
-                        return render_template('index.html') # admin
+                        return render_template('20_admin_navigation.html') # admin
                     elif uname in custIDs:
                         if uname in managerIDs:
                             user_roles = ['manager','customer']
-                            return render_template('index.html') #manager and customer
+                            return render_template('23_24_manager_customer_navigation.html') #manager and customer
                         else:
                             user_roles = ['customer']
-                            return render_template('index.html') #customer only
+                            return render_template('24_customer_navigation.html') #customer only
                     elif uname in managerIDs:
                         user_roles = ['manager']
-                        return render_template('index.html') #manager only
+                        return render_template('23_manager_navigation.html') #manager only
     return render_template('login.html')
 
-@app.route('/logout',methods=['POST'])
+@app.route('/logout',methods=['GET','POST'])
 def logout():
     bank_user = '';
     user_roles = [];
     return render_template('login.html')
+
+@app.route('/')
+def home():
+    if user_roles == ['admin']:
+        return render_template('20_admin_navigation.html')
+    elif user_roles == ['manager','customer']:
+        return render_template('23_24_manager_customer_navigation.html')
+    elif user_roles == ['customer']:
+        return render_template('24_customer_navigation.html')
+    else:
+        return render_template('23_manager_navigation.html')
 
 @app.route("/status")
 def status():
