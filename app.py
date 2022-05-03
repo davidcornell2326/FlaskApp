@@ -108,10 +108,10 @@ def screen_2():
     rows = list(cursor.fetchall())
     corpIDs = [row[0] for row in rows]
 
-    cursor.execute("select perID from employee")
+    cursor.execute("select perID from employee where perID NOT IN (select manager from bank)")
     rows = list(cursor.fetchall())
     employees = [row[0] for row in rows]
-    # TODO: make dropdowns only have employees who aren't already managers?
+    # TODO: does this procedure have an error? I believe it should be able to take an employee working for another bank and remove their employment there and add them as the new manager, as long as the old bank still has at least one employee
 
     return render_template('2_create_bank.html', corpIDs=corpIDs, managers=employees, bankEmployees=employees)
 
@@ -167,6 +167,10 @@ def screen_7():
 
     return render_template('7_replace_manager.html', bankIDs=bankIDs, perIDs=perIDs)
 
+@app.route('/8')
+def screen_8():
+    return render_template('8_manage_accounts.html')
+
 @app.route('/8_1')
 def screen_8_1():
     cursor.execute("select bankID, accountID from bank_account") # TODO: only have accounts accessible to currently logged in user
@@ -179,29 +183,27 @@ def screen_8_1():
 
     return render_template('8_1_manage_accounts_customer.html', accounts=accounts, customers=customers)
 
-# TODO: admin should have separate submit buttons for two portions maybe??
 @app.route('/8_2')
 def screen_8_2():
+    cursor.execute("select perID from customer")
+    rows = list(cursor.fetchall())
+    customers = [row[0] for row in rows]
+
     cursor.execute("select bankID from bank")
     rows = list(cursor.fetchall())
     bankIDs = [row[0] for row in rows]
 
     accountTypes = ['Savings', 'Market', 'Checking']
 
-    return render_template('8_2_manage_accounts_admin.html', bankIDs=bankIDs, accountTypes=accountTypes)
+    return render_template('8_2_manage_accounts_admin.html', customers=customers, bankIDs=bankIDs, accountTypes=accountTypes)
 
 @app.route('/9')
 def screen_9():
-    # TODO: only include interest-bearing accounts
-    cursor.execute("select bankID from bank_account")
+    cursor.execute('select bankID, accountID from bank_account where (bankID, accountID) in (select bankID, accountID from interest_bearing)')
     rows = list(cursor.fetchall())
-    bankIDs = [row[0] for row in rows]
+    accounts = [(row[0], row[1]) for row in rows]
 
-    cursor.execute("select accountID from bank_account")
-    rows = list(cursor.fetchall())
-    accountIDs = [row[0] for row in rows]
-
-    return render_template('9_create_fee.html', bankIDs=bankIDs, accountIDs=accountIDs)
+    return render_template('9_create_fee.html', accounts=accounts)
 
 # TODO: make savings accounts appear only when adding, not removing
 @app.route('/10')
@@ -322,8 +324,6 @@ def screen_24():
 
 @app.route('/api/1',methods=['POST'])
 def screen_1_submit():
-    # redirect('/')
-    screen_1()
     _corpID = request.form['corpID']
     _shortName = request.form['shortName']
     _longName = request.form['longName']
@@ -418,7 +418,7 @@ def screen_4_submit():
     _dtJoined = bank_user[5]
     _password = pwd
     
-    cursor.callproc('start_customer_role', [_perID, _taxID, _firstName, _lastName, _birthdate, _street, _city, _state, _zip, _dtJoined, _password])      # NOT WORKING YET
+    cursor.callproc('start_customer_role', [_perID, _taxID, _firstName, _lastName, _birthdate, _street, _city, _state, _zip, _dtJoined, _password])
 
     data = cursor.fetchall()
     if len(data) == 0:
@@ -488,10 +488,8 @@ def screen_8_1_submit():
     # 'mmoss7', 'atrebek1', 'savings', 'TD_GT', 'new_savings', 4000, 10, null, 0, null, null, '2022-03-03'
     _requester = 'mmoss7' # TODO: requester needs to be currently logged in user
     _customer = request.form['customer']
-    _account = request.form['account'] # TODO: need to parse differently once styling is done 
-    mid = _account.index('\', \'')
-    _bankID = _account[2:mid]
-    _accountID = _account[mid+4:len(_account)-2]
+    _account = request.form['account']
+    (_bankID, _accountID) = get_bankID_and_accountID(_account)
 
     # get account type
     cursor.execute('select * from savings where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
@@ -536,7 +534,6 @@ def screen_8_1_submit():
 
     _adding = request.form['addingRemoving'] == 'Adding' # True if adding, False if removing
 
-
     if _adding:
         cursor.callproc('add_account_access', [_requester, _customer, _accountType, _bankID, _accountID, _balance, _interestRate, _dtDeposit, _minBalance, _numWithdrawals, _maxWithdrawals, _dtShareStart])
     else:
@@ -554,60 +551,20 @@ def screen_8_2_submit():
     # 'mmoss7', 'atrebek1', 'savings', 'TD_GT', 'new_savings', 4000, 10, null, 0, null, null, '2022-03-03'
     _requester = 'mmoss7' # TODO: requester needs to be currently logged in user
     _customer = request.form['customer']
-    _account = request.form['account'] # TODO: need to parse differently once styling is done 
-    mid = _account.index('\', \'')
-    _bankID = _account[2:mid]
-    _accountID = _account[mid+4:len(_account)-2]
-
-    # get account type
-    cursor.execute('select * from savings where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
-    rows = list(cursor.fetchall())
-    if len(rows) > 0:
-        _accountType = 'savings'
-    cursor.execute('select * from checking where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
-    rows = list(cursor.fetchall())
-    if len(rows) > 0:
-        _accountType = 'checking'
-    cursor.execute('select * from market where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
-    rows = list(cursor.fetchall())
-    if len(rows) > 0:
-        _accountType = 'market'
-
-    cursor.execute('select balance from bank_account where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
-    rows = list(cursor.fetchall())
-    _balance = rows[0][0]
+    _bankID = request.form['bankID']
+    _accountID = request.form['accountID']
+    _accountType = request.form['accountType']
+    _balance = request.form['balance']
     
-    _interestRate = request.form['balance']
+    _interestRate = request.form['interestRate']
     _dtDeposit = None
     _minBalance = request.form['minBalance']
-    _numWithdrawals = request.form['numWithdrawals']
+    _numWithdrawals = 0
     _maxWithdrawals = request.form['maxWithdrawals']
     _dtShareStart = str(date.today())
 
-    if _accountType == 'savings':
-        cursor.execute('select minBalance from savings where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
-        rows = list(cursor.fetchall())
-        _minBalance = rows[0][0]
-    elif _accountType == 'market':
-        cursor.execute('select maxWithdrawals, numWithdrawals from market where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
-        rows = list(cursor.fetchall())
-        _maxWithdrawals = rows[0][0]
-        _numWithdrawals = rows[0][1]
-
-    if _accountType == 'savings' or _accountType == 'market':
-        cursor.execute('select interest_rate, dtDeposit from interest_bearing where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
-        rows = list(cursor.fetchall())
-        _interestRate = rows[0][0]
-        _dtDeposit = rows[0][1]
-
-    _adding = request.form['addingRemoving'] == 'Adding' # True if adding, False if removing
-
-
-    if _adding:
-        cursor.callproc('add_account_access', [_requester, _customer, _accountType, _bankID, _accountID, _balance, _interestRate, _dtDeposit, _minBalance, _numWithdrawals, _maxWithdrawals, _dtShareStart])
-    else:
-        cursor.callproc('remove_account_access', [_requester, _customer, _bankID, _accountID])
-
+    cursor.callproc('add_account_access', [_requester, _customer, _accountType, _bankID, _accountID, _balance, _interestRate, _dtDeposit, _minBalance, _numWithdrawals, _maxWithdrawals, _dtShareStart])
+    
     data = cursor.fetchall()
     if len(data) == 0:
         conn.commit()
@@ -617,8 +574,8 @@ def screen_8_2_submit():
 
 @app.route('/api/9',methods=['POST'])
 def screen_9_submit():
-    _bankID = request.form['bankID']
-    _accountID = request.form['accountID']
+    _account = request.form['account']
+    (_bankID, _accountID) = get_bankID_and_accountID(_account)
     _feeType = request.form['feeType']
 
     cursor.callproc('create_fee', [_bankID, _accountID, _feeType])
@@ -636,15 +593,11 @@ def screen_10_submit():
     # stop: "owalter6", "BA_West", "checking_A"
     _requester = 'tjtalbot4'
     # TODO: requester needs to be currently logged in user
-    _checkingAccount = request.form['checkingAccount'] # TODO: need to parse differently once styling is done 
-    mid = _checkingAccount.index('\', \'')
-    _checkingBankID = _checkingAccount[2:mid]
-    _checkingAccountID = _checkingAccount[mid+4:-2]
+    _checkingAccount = request.form['checkingAccount']
+    (_checkingBankID, _checkingAccountID) = get_bankID_and_accountID(_checkingAccount)
     _start = request.form['startStop'] == 'Start' # True if start, False if stop
-    _savingsAccount = request.form['savingsAccount'] # TODO: need to parse differently once styling is done 
-    mid = _savingsAccount.index('\', \'')
-    _savingsBankID = _savingsAccount[2:mid]
-    _savingsAccountID = _savingsAccount[mid+4:-2]
+    _savingsAccount = request.form['savingsAccount']
+    (_savingsBankID, _savingsAccountID) = get_bankID_and_accountID(_savingsAccount)
 
     if _start:
         cursor.callproc('start_overdraft', [_requester, _checkingBankID, _checkingAccountID, _savingsBankID, _savingsAccountID])
@@ -726,6 +679,13 @@ def screen_13_submit():
     else:
         return json.dumps({'error':str(data[0])})
 
+
+def get_bankID_and_accountID(_account):
+    # TODO: need to parse differently once styling is done 
+    mid = _account.index('\', \'')
+    _bankID = _account[2:mid]
+    _accountID = _account[mid+4:len(_account)-2]
+    return (_bankID, _accountID)
 
 
 # execute a sql file
