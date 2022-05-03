@@ -215,30 +215,36 @@ def screen_13():
 # Displaying data
 @app.route('/14')
 def screen_14():
-    return display_table("display_account_stats")
+    return display_table("display_account_stats", "Account Stats", ["Bank", "Account ID", "Account Balance ($)", "Number of Owners"])
 
 @app.route('/15')
 def screen_15():
-    return display_table("display_bank_stats")
+    return display_table("display_bank_stats", "Bank Stats", ["Bank ID", "Corporation Name", "Bank Name", "Street", "City", "State", "Zip", "Number of Accounts", "Bank Assets ($)", "Total Assets ($)"])
 
 @app.route('/16')
 def screen_16():
-    return display_table("display_corporation_stats")
+    return display_table("display_corporation_stats", "Corporation Stats", ["Corporation ID", "Short Name", "Formal Name", "Number of Banks", "Corporation Assets ($)", "Total Assets ($)"])
 
 @app.route('/17')
 def screen_17():
-    return display_table("display_customer_stats")
+    return display_table("display_customer_stats", "Customer Stats", ["Customer ID", "Tax ID", "Customer Name", "Date of Birth", "Date Joined", "Street", "City", "State", "Zip", "Number of Accounts", "Customer Assets ($)"])
 
 @app.route('/18')
 def screen_18():
-    return display_table("display_employee_stats")
+    return display_table("display_employee_stats", "Employee Stats", ["Per ID", "Tax ID", "Name", "Date of Birth", "Date Joined", "Street", "City", "State", "Zip", "Number of Banks", "Bank Assets ($)"])
 
-def display_table(table):
+def display_table(table, pretty_title="", col_override=[]):
     cursor.execute("select * from " + table)
     rows = list(cursor.fetchall())
     cols = []
-    for col in cursor.description:
-        cols.append(col[0])
+    if col_override != []:
+        cols = col_override
+    else:
+        for col in cursor.description:
+            cols.append(col[0])
+    if pretty_title != "":
+        table = pretty_title
+    
     return render_template('display_table.html', title=table, rows=rows, cols=cols)
 
 # Navigation
