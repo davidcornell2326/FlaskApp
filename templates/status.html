@@ -15,7 +15,7 @@
     
         <div class="alert alert-{{"success" if messages[0] == "Procedure executed successfully" or messages[0] == "Database reset successfully" else "danger"}}" role="alert">
             {%for message in messages%}
-            <p>{{message}}</p>
+            <p class="mb-0">{{message}}</p>
             {% endfor %}
         </div>
         <div class="row">
