@@ -57,7 +57,6 @@ def login():
     if request.method == "POST":
         uname = request.form.get("uname")
         pword = request.form.get("pass")
-        print(uname, pword)
         if uname in perIDs:
             if pword == pwds[perIDs.index(uname)]:
                     bank_user = uname;
@@ -92,8 +91,10 @@ def home():
         return render_template('23_24_manager_customer_navigation.html')
     elif user_roles == ['customer']:
         return render_template('24_customer_navigation.html')
-    else:
+    elif user_roles == ['manager']:
         return render_template('23_manager_navigation.html')
+    else:
+        return render_template('19_login.html')
 
 @app.route("/status")
 def status():
@@ -513,7 +514,7 @@ def screen_7_submit():
     _perID = request.form['perID']
     _salary = request.form['salary']
     
-    cursor.callproc('replace_manager', [_perID, _bankID, salary])
+    cursor.callproc('replace_manager', [_perID, _bankID, _salary])
 
     data = cursor.fetchall()
     if len(data) == 0:
@@ -529,8 +530,6 @@ def screen_8_1_submit():
     _customer = request.form['customer']
     _account = request.form['account']
     (_bankID, _accountID) = get_bankID_and_accountID(_account)
-    print(_bankID)
-    print(_accountID)
 
     # get account type
     cursor.execute('select * from savings where (bankID, accountID) = (\'' + _bankID + '\', \'' + _accountID + '\')')
