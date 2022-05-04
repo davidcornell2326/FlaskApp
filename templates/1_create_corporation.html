@@ -66,15 +66,20 @@
                 }
             // }).then((res) => {
             //     res.json().then((json_res) => {
-            //         if(json_res.message && json_res.message=='Success') {
-            //             pop_alert('Success', 'success');
-            //         } else if (json_res.error) {
-            //             pop_alert('Error: ' + json_res.error, 'danger');
+            //         let message = '';
+            //         if (json_res.message) {
+            //             message = json_res.message
+            //         }
+            //         if(json_res.status && json_res.status=='Success') {
+            //             pop_alert('Success: '+ message, 'success');
+            //         } else if (json_res.status && json_res.status=='Error') {
+            //             pop_alert('Error: ' + message, 'danger');
             //         } else {
             //             pop_alert('Unknown error', 'warning');
             //         }
             //     });
             });
+
             await res.json()
             window.location = '/status'
         });

@@ -111,6 +111,23 @@ def status():
         messages = ["Database reset successfully"]
     return render_template('status.html', messages=messages)
 
+def status_json():
+    cursor.execute('select * from success')
+    rows = list(cursor.fetchall())
+    if len(rows) > 0:
+        if rows[0][0] == 'failed':
+            messages = ['Procedure failed to execute successfully. Please ensure the data entered is valid and try again.',
+            f'''Procedure ID: {rows[0][1]}''',
+            f'''Procedure message: {rows[0][2]}''',
+            f'''Procedure timestamp: {rows[0][3]}''']
+            return json.dumps({'status':'Error', 'message':"<br/>".join(messages)})
+        else:
+            return json.dumps({'status':'Success', 'message':'Procedure executed successfully'})
+
+    else: # reset DB case
+        return json.dumps({'status':'Success', 'message':'Database reset successfully'})
+        
+
 # Updating data
 @app.route('/1')
 def screen_1():
@@ -347,6 +364,11 @@ def screen_1_submit():
     _resAssets = request.form['resAssets']
 
     cursor.callproc('create_corporation', [_corpID, _shortName, _longName, _resAssets])
+
+    # data = cursor.fetchall()
+    # if len(data) == 0:
+    #     conn.commit()
+    # return status_json()
 
     data = cursor.fetchall()
     if len(data) == 0:
