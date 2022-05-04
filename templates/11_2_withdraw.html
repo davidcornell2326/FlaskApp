@@ -29,22 +29,14 @@
                 </div>
     
                 <div class="col-5">
-                    <label for="bankIDInput">Bank</label>
-                    <select name="bankID" class="form-select form-select-lg mb-3" id="bankInput">
-                        {% for bankID in bankIDs %}
-                        <option>{{bankID}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                
-                <div class="col-6">
                     <label for="accountInput">Account</label>
-                    <select name="accountID" class="form-select form-select-lg mb-3 mt-0" id="accountInput">
-                        {% for account in accountIDs %}
+                    <select name="account" class="form-select form-select-lg mb-3" id="accountInput">
+                        {% for account in accounts %}
                         <option>{{account}}</option>
                         {% endfor %}
                     </select>
                 </div>
+
             </div>
 
             <div class="row">

@@ -256,39 +256,27 @@ def screen_10():
 
 @app.route('/11_1')
 def screen_11_1():
-    cursor.execute("select bankID from bank_account")
+    cursor.execute("select bankID, accountID from bank_account")
     rows = list(cursor.fetchall())
-    bankIDs = [row[0] for row in rows]
+    accounts = [(row[0], row[1]) for row in rows]
 
-    cursor.execute("select accountID from bank_account")
-    rows = list(cursor.fetchall())
-    accountIDs = [row[0] for row in rows]
-
-    return render_template('11_1_deposit.html', bankIDs=bankIDs, accountIDs=accountIDs)
+    return render_template('11_1_deposit.html', accounts=accounts)
 
 @app.route('/11_2')
 def screen_11_2():
-    cursor.execute("select bankID from bank_account")
+    cursor.execute("select bankID, accountID from bank_account")
     rows = list(cursor.fetchall())
-    bankIDs = [row[0] for row in rows]
+    accounts = [(row[0], row[1]) for row in rows]
 
-    cursor.execute("select accountID from bank_account")
-    rows = list(cursor.fetchall())
-    accountIDs = [row[0] for row in rows]
-
-    return render_template('11_2_withdraw.html', bankIDs=bankIDs, accountIDs=accountIDs)
+    return render_template('11_2_withdraw.html', accounts=accounts)
 
 @app.route('/12')
 def screen_12():
-    cursor.execute("select bankID from bank_account")
+    cursor.execute("select bankID, accountID from bank_account")
     rows = list(cursor.fetchall())
-    bankIDs = [row[0] for row in rows]
+    accounts = [(row[0], row[1]) for row in rows]
 
-    cursor.execute("select accountID from bank_account")
-    rows = list(cursor.fetchall())
-    accountIDs = [row[0] for row in rows]
-
-    return render_template('12_transfer.html', fromBankIDs=bankIDs, fromAccountIDs=accountIDs, toBankIDs=bankIDs, toAccountIDs=accountIDs)
+    return render_template('12_transfer.html', fromAccounts=accounts, toAccounts=accounts)
 
 @app.route('/13')
 def screen_13():
@@ -654,8 +642,8 @@ def screen_10_submit():
 def screen_11_1_submit():
     _requester = bank_user
     _amount = request.form['amount']
-    _bankID = request.form['bankID']
-    _accountID = request.form['accountID']
+    _account = request.form['account']
+    (_bankID, _accountID) = get_bankID_and_accountID(_account)
     _dtAction = str(date.today())
 
     cursor.callproc('account_deposit', [_requester, _amount, _bankID, _accountID, _dtAction])
@@ -671,8 +659,8 @@ def screen_11_1_submit():
 def screen_11_2_submit():
     _requester = bank_user
     _amount = request.form['amount']
-    _bankID = request.form['bankID']
-    _accountID = request.form['accountID']
+    _account = request.form['account']
+    (_bankID, _accountID) = get_bankID_and_accountID(_account)
     _dtAction = str(date.today())
 
     cursor.callproc('account_withdrawal', [_requester, _amount, _bankID, _accountID, _dtAction])
@@ -687,11 +675,11 @@ def screen_11_2_submit():
 @app.route('/api/12',methods=['POST'])
 def screen_12_submit():
     _requester = bank_user
-    _fromBankID = request.form['fromBankID']
-    _fromAccountID = request.form['fromAccountID']
+    _fromAccount = request.form['fromAccount']
+    (_fromBankID, _fromAccountID) = get_bankID_and_accountID(_fromAccount)
     _amount = request.form['amount']
-    _toBankID = request.form['toBankID']
-    _toAccountID = request.form['toAccountID']
+    _toAccount = request.form['toAccount']
+    (_toBankID, _toAccountID) = get_bankID_and_accountID(_toAccount)
     _dtAction = str(date.today())
 
     cursor.callproc('account_transfer', [_requester, _amount, _fromBankID, _fromAccountID, _toBankID, _toAccountID, _dtAction])

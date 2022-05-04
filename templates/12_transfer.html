@@ -22,22 +22,14 @@
                 </div>
     
                 <div class="col-5">
-                    <label for="fromBankIDInput">Bank</label>
-                    <select name="fromBankID" class="form-select form-select-lg mb-3" id="fromBankInput">
-                        {% for bankID in fromBankIDs %}
-                        <option>{{bankID}}</option>
+                    <label for="fromAccountInput">Account</label>
+                    <select name="fromAccount" class="form-select form-select-lg mb-3" id="fromAccountInput">
+                        {% for fromAccount in fromAccounts %}
+                        <option>{{fromAccount}}</option>
                         {% endfor %}
                     </select>
                 </div>
                 
-                <div class="col-6">
-                    <label for="fromAccountInput">Account</label>
-                    <select name="fromAccountID" class="form-select form-select-lg mb-3 mt-0" id="fromAccountInput">
-                        {% for account in fromAccountIDs %}
-                        <option>{{account}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
             </div>
 
             <div class="row">
@@ -52,22 +44,14 @@
                 </div>
     
                 <div class="col-5">
-                    <label for="toBankIDInput">Bank</label>
-                    <select name="toBankID" class="form-select form-select-lg mb-3" id="toBankInput">
-                        {% for bankID in toBankIDs %}
-                        <option>{{bankID}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                
-                <div class="col-6">
                     <label for="toAccountInput">Account</label>
-                    <select name="toAccountID" class="form-select form-select-lg mb-3 mt-0" id="toAccountInput">
-                        {% for account in toAccountIDs %}
-                        <option>{{account}}</option>
+                    <select name="toAccount" class="form-select form-select-lg mb-3" id="toAccountInput">
+                        {% for toAccount in toAccounts %}
+                        <option>{{toAccount}}</option>
                         {% endfor %}
                     </select>
                 </div>
+
             </div>
 
             <div class="row">
