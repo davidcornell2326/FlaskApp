@@ -80,9 +80,9 @@ def login():
 def logout():
     global bank_user
     global user_roles
-    bank_user = '';
-    user_roles = [];
-    return render_template('login.html')
+    bank_user = ''
+    user_roles = []
+    return render_template('19_login.html')
 
 @app.route('/home')
 def home():
@@ -100,18 +100,16 @@ def status():
     cursor.execute('select * from success')
     rows = list(cursor.fetchall())
     if len(rows) > 0:
-        message = 'Procedure executed successfully'
+        messages = ['Procedure executed successfully']
         if rows[0][0] == 'failed':
-            message = f'''Procedure failed to execute successfully. Please ensure the data entered is valid and try again.\n
-            Procedure ID: {rows[0][1]}\n
-            Procedure message: {rows[0][2]}\n
-            Procedure timestamp: {rows[0][3]}
-            '''
-            # TODO: style HTML to make newlines appear correctly
+            messages = ['Procedure failed to execute successfully. Please ensure the data entered is valid and try again.',
+            f'''Procedure ID: {rows[0][1]}''',
+            f'''Procedure message: {rows[0][2]}''',
+            f'''Procedure timestamp: {rows[0][3]}''']
 
     else: # reset DB case
-        message = "Database reset successfully"
-    return render_template('status.html', message=message)
+        messages = ["Database reset successfully"]
+    return render_template('status.html', messages=messages)
 
 # Updating data
 @app.route('/1')
