@@ -50,7 +50,7 @@
             <div class="row">
                 <div class="col">
                     <div class="d-grid gap-2">
-                        <a class="btn btn-secondary btn-lg" role="button" href="24">Back</a>
+                        <a class="btn btn-secondary btn-lg" role="button" href="home">Home</a>
                     </div>
                 </div>
                 <div class="col">
@@ -71,23 +71,25 @@
         document.querySelector('#form').addEventListener("submit", async function (e) {
             e.preventDefault()
             console.log(new URLSearchParams(new FormData(e.target)).toString())
-            fetch("/api/11_1", {
+            const res = await fetch("/api/11_1", {
                 body: new URLSearchParams(new FormData(e.target)).toString(),
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 }
-            }).then((res) => {
-                res.json().then((json_res) => {
-                    if(json_res.message && json_res.message=='Success') {
-                        pop_alert('Success', 'success');
-                    } else if (json_res.error) {
-                        pop_alert('Error: ' + json_res.error, 'danger');
-                    } else {
-                        pop_alert('Unknown error', 'warning');
-                    }
-                });
+            // }).then((res) => {
+            //     res.json().then((json_res) => {
+            //         if(json_res.message && json_res.message=='Success') {
+            //             pop_alert('Success', 'success');
+            //         } else if (json_res.error) {
+            //             pop_alert('Error: ' + json_res.error, 'danger');
+            //         } else {
+            //             pop_alert('Unknown error', 'warning');
+            //         }
+            //     });
             });
+            await res.json()
+            window.location = '/status'
         });
     </script>
 </body>

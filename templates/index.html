@@ -3,6 +3,7 @@
 
 <head>
     <title>Phase IV</title>
+    <!-- <meta http-equiv="refresh" content="1"> -->
 </head>
 
 <body>
@@ -10,6 +11,7 @@
 
     </div>
         <button onclick="resetDB()">Reset Database</button>
+        <button onclick="{{url_for("logout")}}">Logout</button>
     <div>
         <div><a href="1" role="button">Screen 1</a></div>
         <div><a href="2" role="button">Screen 2</a></div>
@@ -19,6 +21,7 @@
         <div><a href="5_2" role="button">Screen 5_2</a></div>
         <div><a href="6" role="button">Screen 6</a></div>
         <div><a href="7" role="button">Screen 7</a></div>
+        <div><a href="8" role="button">Screen 8</a></div>
         <div><a href="8_1" role="button">Screen 8_1</a></div>
         <div><a href="8_2" role="button">Screen 8_2</a></div>
         <div><a href="9" role="button">Screen 9</a></div>
@@ -45,10 +48,12 @@
 
     <script>
         async function resetDB() {
+            // setInterval("updateStatus()", 1000);
             const res = await fetch("/api/reset", {
                 body: "",
                 method: "POST"
             })
+            window.location = '/status'
         }
     </script>
 </body>

@@ -16,40 +16,25 @@
         </div>
 
         <form id="form" method="POST" class="row g-3">
-            <strong style="margin-bottom: 0px;">Add/Remove Accounts:</strong>
-            <label for="accountInput">Account</label>
-            <select name="account" class="form-select form-select-lg mb-3 mt-0" id="accountInput">
-                {% for account in accounts %}
-                <option>{{account}}</option>
-                {% endfor %}
-            </select>
+            <strong style="margin-bottom: 0px;">Create New Account:</strong>
             <label for="customerInput">Customer</label>
             <select name="customer" class="form-select form-select-lg mb-3 mt-0" id="customerInput">
                 {% for customer in customers %}
                 <option>{{customer}}</option>
                 {% endfor %}
             </select>
-            <div class="row justify-content-md-center">
-                <div class="btn-group col-md-10 mb-3" role="group" aria-label="Basic radio toggle button group">
-                    <input type="radio" class="btn-check btn-lg" id="adding" autocomplete="off" name="addingRemoving" value="Adding" checked>
-                    <label class="btn btn-outline-success" for="adding">Adding</label>
-                    
-                    <input type="radio" class="btn-check btn-lg" id="removing" autocomplete="off" name="addingRemoving" value="Adding">
-                    <label class="btn btn-outline-danger" for="removing">Removing</label>
-                </div>
-            </div>
-
-            <strong style="margin-bottom: 0px;">Create New Account:</strong>
             <label for="bankIDInput">Bank</label>
             <select name="bankID" class="form-select form-select-lg mb-3 mt-0" id="bankInput">
                 {% for bankID in bankIDs %}
                 <option>{{bankID}}</option>
                 {% endfor %}
             </select>
-            <label for="accountInput">Account</label>
-            <select name="account" class="form-select form-select-lg mb-3 mt-0" id="accountInput">
-                {% for account in accounts %}
-                <option>{{account}}</option>
+            <label for="accountIDInput">Account ID</label>
+            <input type="name" name="accountID" class="form-control" id="accountIDInput" placeholder="accountID" required>
+            <label for="accountTypeInput">Account Type</label>
+            <select name="accountType" class="form-select form-select-lg mb-3 mt-0" id="accountTypeInput">
+                {% for accountType in accountTypes %}
+                <option>{{accountType}}</option>
                 {% endfor %}
             </select>
 
@@ -73,7 +58,7 @@
             <div class="row">
                 <div class="col">
                     <div class="d-grid gap-2">
-                        <a class="btn btn-secondary btn-lg" role="button" href="20">Back</a>
+                        <a class="btn btn-secondary btn-lg" role="button" href="home">Home</a>
                     </div>
                 </div>
                 <div class="col">
@@ -94,23 +79,25 @@
         document.querySelector('#form').addEventListener("submit", async function (e) {
             e.preventDefault()
             console.log(new URLSearchParams(new FormData(e.target)).toString())
-            fetch("/api/8_2", {
+            const res = await fetch("/api/8_2", {
                 body: new URLSearchParams(new FormData(e.target)).toString(),
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 }
-            }).then((res) => {
-                res.json().then((json_res) => {
-                    if(json_res.message && json_res.message=='Success') {
-                        pop_alert('Success', 'success');
-                    } else if (json_res.error) {
-                        pop_alert('Error: ' + json_res.error, 'danger');
-                    } else {
-                        pop_alert('Unknown error', 'warning');
-                    }
-                });
+            // }).then((res) => {
+            //     res.json().then((json_res) => {
+            //         if(json_res.message && json_res.message=='Success') {
+            //             pop_alert('Success', 'success');
+            //         } else if (json_res.error) {
+            //             pop_alert('Error: ' + json_res.error, 'danger');
+            //         } else {
+            //             pop_alert('Unknown error', 'warning');
+            //         }
+            //     });
             });
+            await res.json()
+            window.location = '/status'
         });
     </script>
 </body>
